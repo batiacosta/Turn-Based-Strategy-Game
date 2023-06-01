@@ -12,6 +12,7 @@ public class Unit : MonoBehaviour
         Vector3 position = transform.position;
         var deltaPositionTarget = Vector3.Distance(position, _targetPosition);
         var stoppingDistance = 0.1f;
+        
         if (deltaPositionTarget > stoppingDistance)
         {
             Vector3 moveDirection = (_targetPosition - position).normalized;
