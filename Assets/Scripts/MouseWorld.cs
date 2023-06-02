@@ -6,6 +6,7 @@ using UnityEngine;
 public class MouseWorld : MonoBehaviour
 {
     private static MouseWorld _instance;
+    
     [SerializeField] private LayerMask mousePlayerMask;
 
     private void Awake()
