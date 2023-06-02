@@ -13,7 +13,8 @@ public class Unit : MonoBehaviour
 
     private void Update()
     {
-        Vector3 position = transform.position;
+        Transform currentTransform = transform;
+        Vector3 position = currentTransform.position;
         var deltaPositionTarget = Vector3.Distance(position, _targetPosition);
         var stoppingDistance = 0.1f;
         
@@ -21,6 +22,8 @@ public class Unit : MonoBehaviour
         {
             Vector3 moveDirection = (_targetPosition - position).normalized;
             float moveSpeed = 4f;
+            float rotationSpeed = 10f;
+            transform.forward = Vector3.Lerp(currentTransform.forward, moveDirection, Time.deltaTime * rotationSpeed);
             transform.position += moveDirection * moveSpeed * Time.deltaTime;
             unitAnimator.SetBool(IsWalking, true);
         }
