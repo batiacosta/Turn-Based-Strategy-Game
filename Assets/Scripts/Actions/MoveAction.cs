@@ -1,34 +1,39 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 
-public class MoveAction : MonoBehaviour
+public class MoveAction : BaseAction
 {
     [SerializeField] private Animator unitAnimator;
     [SerializeField] private int maxMoveDistance;
     
     private static readonly int IsWalking = Animator.StringToHash("IsWalking");
     private Vector3 _targetPosition;
-    private Unit _unit;
     
-
-    private void Awake()
+    protected override void Awake()
     {
-        _unit = GetComponent<Unit>();
+        base.Awake();
         _targetPosition = transform.position;
     }
 
     private void Update()
     {
+        if (!_isActive)
+        {
+            return;
+        }
         Transform currentTransform = transform;
         Vector3 position = currentTransform.position;
         var deltaPositionTarget = Vector3.Distance(position, _targetPosition);
         var stoppingDistance = 0.1f;
         
+        Vector3 moveDirection = (_targetPosition - position).normalized;
+        
         if (deltaPositionTarget > stoppingDistance)
         {
-            Vector3 moveDirection = (_targetPosition - position).normalized;
+            
             float moveSpeed = 4f;
             float rotationSpeed = 10f;
             transform.forward = Vector3.Lerp(currentTransform.forward, moveDirection, Time.deltaTime * rotationSpeed);
@@ -38,11 +43,18 @@ public class MoveAction : MonoBehaviour
         else
         {
             unitAnimator.SetBool(IsWalking, false);
+            _isActive = false;
+            _OnActionComplete();
         }
+
+        float rotateSpeed = 10f;
+        transform.forward = Vector3.Lerp(transform.forward, moveDirection, Time.deltaTime * rotateSpeed);
     }
 
-    public void Move(GridPosition gridPosition)
+    public void Move(GridPosition gridPosition, Action onActioncomplete)
     {
+        _OnActionComplete = onActioncomplete;
+        _isActive = true;
         _targetPosition = LevelGrid.Instance.GetWorldPosition(gridPosition);
     }
 

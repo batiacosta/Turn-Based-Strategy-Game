@@ -13,6 +13,8 @@ public class UnitActionSystem : MonoBehaviour
     [SerializeField] private LayerMask unitLayerMask;
     [SerializeField] private Unit selectedUnit;
 
+    private bool _isBusy;
+
     private void Awake()
     {
         if (Instance != null)
@@ -25,8 +27,15 @@ public class UnitActionSystem : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        _isBusy = false;
+    }
+
     private void Update()
     {
+        if (_isBusy) return;
+        
         if (Input.GetMouseButtonDown(0))
         {
             if (TryHandleUnitSelection()) return;
@@ -34,8 +43,15 @@ public class UnitActionSystem : MonoBehaviour
             GridPosition mouseGridPosition = LevelGrid.Instance.GetGridPosition((MouseWorld.GetPosition()));
             if (selectedUnit.GetMoveAction().IsValidGridPosition(mouseGridPosition))
             {
-                selectedUnit.GetMoveAction().Move(mouseGridPosition);
+                SetBusy();
+                selectedUnit.GetMoveAction().Move(mouseGridPosition, ClearBusy);
             }
+        }
+        
+        if (Input.GetMouseButtonDown(1))
+        {
+            SetBusy();
+            selectedUnit.GetSpinAction().Spin(ClearBusy);
         }
     }
 
@@ -63,4 +79,7 @@ public class UnitActionSystem : MonoBehaviour
     {
         return selectedUnit;
     }
+
+    private void SetBusy() => _isBusy = true;
+    private void ClearBusy() => _isBusy = false;
 }
