@@ -6,14 +6,10 @@ using UnityEngine;
 
 public class LevelGrid : MonoBehaviour
 {
-    public static LevelGrid Instance
-    {
-        get;
-        private set;
-    }
-    
+    public static LevelGrid Instance { get; private set; }
+
     [SerializeField] private Transform gridDebugObjectPrefab;
-    
+
     private GridSystem _gridSystem;
 
     private void Awake()
@@ -23,8 +19,9 @@ public class LevelGrid : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+
         Instance = this;
-        
+
         _gridSystem = new GridSystem(10, 10, 2f);
         _gridSystem.CreateDebugObjects(gridDebugObjectPrefab);
     }
@@ -32,10 +29,10 @@ public class LevelGrid : MonoBehaviour
     public void AddUnitAtGridPosition(GridPosition gridPosition, Unit unit)
     {
         GridObject gridObject = _gridSystem.GetGridObject(gridPosition);
-        
+
         gridObject.AddUnit(unit);
     }
-    
+
     public List<Unit> GetUnitListAtGridPosition(GridPosition gridPosition)
     {
         GridObject gridObject = _gridSystem.GetGridObject(gridPosition);
@@ -47,11 +44,11 @@ public class LevelGrid : MonoBehaviour
         GridObject gridObject = _gridSystem.GetGridObject(gridPosition);
         gridObject.RemoveUnit(unit);
     }
-    
+
     public void UnitMovedGridPosition(Unit unit, GridPosition fromGridPosition, GridPosition toGridPosition)
     {
         RemoveUnitAtGridPosition(fromGridPosition, unit);
-        
+
         AddUnitAtGridPosition(toGridPosition, unit);
     }
 
@@ -59,6 +56,7 @@ public class LevelGrid : MonoBehaviour
     {
         return _gridSystem.GetGridPosition(worldPosition);
     }
+
     public Vector3 GetWorldPosition(GridPosition gridPosition)
     {
         return _gridSystem.GetWorldPosition(gridPosition);
@@ -71,4 +69,8 @@ public class LevelGrid : MonoBehaviour
         GridObject gridObject = _gridSystem.GetGridObject(gridPosition);
         return gridObject.HasAnyUnit(gridPosition);
     }
+
+    public int GetWidth() => _gridSystem.GetWidth();
+    public int GetHeight() => _gridSystem.GetHeight();
+    
 }
