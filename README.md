@@ -9,4 +9,4 @@ Turn based strategy game developed in Unity 2022 LTS
 
 -Turn based system and limited actions per turn.
 
-<img src="https://github.com/batiacosta/Turn-Based-Strategy-Game/blob/Feature/TurnSystem/Multimedia/TurnBasedSystem.gif" width="400px"/> 
+<img src="https://github.com/batiacosta/Turn-Based-Strategy-Game/blob/dev/Multimedia/TurnBasedSystem.gif" width="400px"/> 
