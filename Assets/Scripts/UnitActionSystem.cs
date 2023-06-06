@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
 public class UnitActionSystem : MonoBehaviour
@@ -9,11 +10,16 @@ public class UnitActionSystem : MonoBehaviour
     public static UnitActionSystem Instance { get; private set; }
     
     public event EventHandler OnSelectedUnitChanged;
+    public event EventHandler OnSelectedActionChanged;
+    public event EventHandler<bool> OnBusyChanged;
+
+    public event EventHandler OnActionTriggered;
 
     [SerializeField] private LayerMask unitLayerMask;
     [SerializeField] private Unit selectedUnit;
 
     private bool _isBusy;
+    private BaseAction _selectedAction;
 
     private void Awake()
     {
@@ -30,40 +36,55 @@ public class UnitActionSystem : MonoBehaviour
     private void Start()
     {
         _isBusy = false;
+        SetSelectedUnit(selectedUnit);
     }
 
     private void Update()
     {
         if (_isBusy) return;
+
+        if (EventSystem.current.IsPointerOverGameObject())  //  To ignore click on UI
+        {
+            return;
+        }
+        if (TryHandleUnitSelection()) return;
         
+        HandleSelectedAction();
+    }
+
+    private void HandleSelectedAction()
+    {
         if (Input.GetMouseButtonDown(0))
         {
-            if (TryHandleUnitSelection()) return;
-
-            GridPosition mouseGridPosition = LevelGrid.Instance.GetGridPosition((MouseWorld.GetPosition()));
-            if (selectedUnit.GetMoveAction().IsValidGridPosition(mouseGridPosition))
+            GridPosition mouseGridPosition = LevelGrid.Instance.GetGridPosition(MouseWorld.GetPosition());
+            if (!_selectedAction.IsValidActionGridPosition(mouseGridPosition)) return;
+            
+            if (selectedUnit.TrySpendActionPointsToTakeAction(_selectedAction))
             {
                 SetBusy();
-                selectedUnit.GetMoveAction().Move(mouseGridPosition, ClearBusy);
+                _selectedAction.TakeAction(mouseGridPosition, ClearBusy);
+                OnActionTriggered?.Invoke(this, EventArgs.Empty);
             }
-        }
-        
-        if (Input.GetMouseButtonDown(1))
-        {
-            SetBusy();
-            selectedUnit.GetSpinAction().Spin(ClearBusy);
         }
     }
 
     private bool TryHandleUnitSelection()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit raycastHit, float.MaxValue, unitLayerMask))
+        if (Input.GetMouseButtonDown(0))
         {
-            if (raycastHit.transform.TryGetComponent<Unit>(out Unit unit))
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit raycastHit, float.MaxValue, unitLayerMask))
             {
-                SetSelectedUnit(unit);
-                return true;
+                if (raycastHit.transform.TryGetComponent<Unit>(out Unit unit))
+                {
+                    if (unit == selectedUnit)
+                    {
+                        //  Unit already selected
+                        return false;
+                    }
+                    SetSelectedUnit(unit);
+                    return true;
+                }
             }
         }
         return false;
@@ -72,6 +93,7 @@ public class UnitActionSystem : MonoBehaviour
     private void SetSelectedUnit(Unit unit)
     {
         selectedUnit = unit;
+        SetSelectedAction(unit.GetMoveAction());
         OnSelectedUnitChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -80,6 +102,25 @@ public class UnitActionSystem : MonoBehaviour
         return selectedUnit;
     }
 
-    private void SetBusy() => _isBusy = true;
-    private void ClearBusy() => _isBusy = false;
+    public void SetSelectedAction(BaseAction baseAction)
+    {
+        _selectedAction = baseAction;
+        OnSelectedActionChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public BaseAction GetSelectedAction()
+    {
+        return _selectedAction;
+    }
+
+    private void SetBusy(){
+        _isBusy = true;
+        OnBusyChanged?.Invoke(this, _isBusy);
+    }
+
+    private void ClearBusy()
+    {
+        _isBusy = false;
+        OnBusyChanged?.Invoke(this, _isBusy);
+    }
 }
