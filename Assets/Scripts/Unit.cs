@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
@@ -11,6 +10,8 @@ public class Unit : MonoBehaviour
     private const int MaxActionPointsMax = 2;
 
     public static event EventHandler OnAnyActionPointsChanged;
+
+    [SerializeField] private bool isEnemy;
     
     private GridPosition _gridPosition;
     private MoveAction _moveAction;
@@ -79,8 +80,13 @@ public class Unit : MonoBehaviour
     
     private void TurnSystem_OnTurnNumberChanged(object sender, EventArgs e)
     {
-        _actionPoints = MaxActionPointsMax;
-        OnAnyActionPointsChanged?.Invoke(this, EventArgs.Empty);
+        bool isEnemyTurn = IsEnemy() && !TurnSystem.Instance.IsPlayerTurn();
+        bool isPlayerTurn = !IsEnemy() && TurnSystem.Instance.IsPlayerTurn();
+        if (isEnemyTurn || isPlayerTurn)
+        {
+            _actionPoints = MaxActionPointsMax;
+            OnAnyActionPointsChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
     
 
@@ -88,4 +94,6 @@ public class Unit : MonoBehaviour
     {
         return _actionPoints;
     }
+
+    public bool IsEnemy() => isEnemy;
 }
