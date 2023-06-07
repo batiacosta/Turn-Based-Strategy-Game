@@ -43,6 +43,8 @@ public class UnitActionSystem : MonoBehaviour
     {
         if (_isBusy) return;
 
+        if (!TurnSystem.Instance.IsPlayerTurn()) return;
+
         if (EventSystem.current.IsPointerOverGameObject())  //  To ignore click on UI
         {
             return;
@@ -80,6 +82,11 @@ public class UnitActionSystem : MonoBehaviour
                     if (unit == selectedUnit)
                     {
                         //  Unit already selected
+                        return false;
+                    }
+
+                    if (unit.IsEnemy())
+                    {
                         return false;
                     }
                     SetSelectedUnit(unit);

@@ -10,18 +10,23 @@ public class TurnSystemUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI textTurnNumber;
     [SerializeField] private Button endTurnButton;
+    [SerializeField] private GameObject enemyTurnVisualGameObject;
 
     private void Start()
     {
         endTurnButton.onClick.AddListener(NextTurn);
         TurnSystem.Instance.OnTurnNumberChanged += TurnSystem_OnTurnNumberChanged;
         UpdateTurnNumberVisual(TurnSystem.Instance.GetTurnNumber());
+        UpdateEnemyTurnVisual();
+        UpdateEndTurnButtonVisibility();
     }
 
     private void TurnSystem_OnTurnNumberChanged(object sender, EventArgs e)
     {
         int turnNumber = TurnSystem.Instance.GetTurnNumber();
         UpdateTurnNumberVisual(turnNumber);
+        UpdateEnemyTurnVisual();
+        UpdateEndTurnButtonVisibility();
     }
 
     private void UpdateTurnNumberVisual(int turnNumber)
@@ -32,5 +37,17 @@ public class TurnSystemUI : MonoBehaviour
     private void NextTurn()
     {
         TurnSystem.Instance.NextTurn();
+    }
+
+    private void UpdateEnemyTurnVisual()
+    {
+        bool isEnemyTurn = !TurnSystem.Instance.IsPlayerTurn();
+        enemyTurnVisualGameObject.SetActive(isEnemyTurn);
+    }
+
+    private void UpdateEndTurnButtonVisibility()
+    {
+        bool isPlayerTurn = TurnSystem.Instance.IsPlayerTurn();
+        endTurnButton.gameObject.SetActive(isPlayerTurn);
     }
 }
