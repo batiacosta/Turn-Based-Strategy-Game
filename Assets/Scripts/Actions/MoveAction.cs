@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class MoveAction : BaseAction
 {
-    [SerializeField] private Animator unitAnimator;
+    public event EventHandler OnStartMoving;
+    public event EventHandler OnStopMoving;
     [SerializeField] private int maxMoveDistance;
     
     private static readonly int IsWalking = Animator.StringToHash("IsWalking");
@@ -18,15 +19,14 @@ public class MoveAction : BaseAction
         _targetPosition = transform.position;
     }
 
-    public override string GetActinName()
+    public override string GetActionName()
     {
         return "Move";
     }
 
     public override void TakeAction(GridPosition gridPosition, Action onActionComplete)
     {
-        _OnActionComplete = onActionComplete;
-        _isActive = true;
+        ActionStart(onActionComplete);
         _targetPosition = LevelGrid.Instance.GetWorldPosition(gridPosition);
     }
 
@@ -50,13 +50,12 @@ public class MoveAction : BaseAction
             float rotationSpeed = 10f;
             transform.forward = Vector3.Lerp(currentTransform.forward, moveDirection, Time.deltaTime * rotationSpeed);
             transform.position += moveDirection * moveSpeed * Time.deltaTime;
-            unitAnimator.SetBool(IsWalking, true);
+            OnStartMoving?.Invoke(this, EventArgs.Empty);
         }
         else
         {
-            unitAnimator.SetBool(IsWalking, false);
-            _isActive = false;
-            _OnActionComplete();
+            ActionComplete();
+            OnStopMoving?.Invoke(this, EventArgs.Empty);
         }
 
         float rotateSpeed = 10f;
