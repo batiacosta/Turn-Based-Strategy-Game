@@ -7,6 +7,7 @@ using UnityEngine.Serialization;
 
 public class ShootAction : BaseAction
 {
+    public event EventHandler OnShoot;
     
     [SerializeField] private int maxShootDistance = 7;
     
@@ -100,6 +101,7 @@ public class ShootAction : BaseAction
         _state = State.Aiming;
         var stateTimer = 1f;
         _stateTimer = stateTimer;
+        OnShoot?.Invoke(this, EventArgs.Empty);
     }
 
     public override List<GridPosition> GetValidActionGridPositionList()
