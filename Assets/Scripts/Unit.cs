@@ -101,4 +101,9 @@ public class Unit : MonoBehaviour
     {
         Debug.Log("Took damage");
     }
+
+    public Vector3 GetWorldPosition()
+    {
+        return transform.position;
+    }
 }

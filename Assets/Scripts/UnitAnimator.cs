@@ -6,6 +6,10 @@ using UnityEngine;
 public class UnitAnimator : MonoBehaviour
 {
     [SerializeField] private Animator animator;
+    [SerializeField] private Transform bulletProjectilePrefab;
+    [SerializeField] private Transform shootPoint;
+
+
     private static readonly int IsWalking = Animator.StringToHash("IsWalking");
     private static readonly int Shoot = Animator.StringToHash("Shoot");
 
@@ -21,11 +25,17 @@ public class UnitAnimator : MonoBehaviour
             shootAction.OnShoot += ShootAction_OnShoot;
         }
     }
-
-    private void ShootAction_OnShoot(object sender, EventArgs e)
+    
+    private void ShootAction_OnShoot(object sender, ShootAction.OnShootEventArgs e)
     {
         animator.SetTrigger(Shoot);
+
+        Transform bullet = Instantiate(bulletProjectilePrefab, shootPoint.position, Quaternion.identity);
+        Vector3 targetUnitShootAtPosition = e.targetUnit.GetWorldPosition();
+        targetUnitShootAtPosition.y = shootPoint.position.y;
+        bullet.GetComponent<BulletProjectile>().SetTarget(targetUnitShootAtPosition);
     }
+
 
     private void MoveAction_OnStopMoving(object sender, EventArgs e)
     {

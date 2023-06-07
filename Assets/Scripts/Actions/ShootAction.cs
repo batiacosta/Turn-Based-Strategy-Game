@@ -7,8 +7,14 @@ using UnityEngine.Serialization;
 
 public class ShootAction : BaseAction
 {
-    public event EventHandler OnShoot;
-    
+    public event EventHandler<OnShootEventArgs> OnShoot;
+
+    public class OnShootEventArgs : EventArgs
+    {
+        public Unit targetUnit;
+        public Unit shootingUnit;
+    }
+
     [SerializeField] private int maxShootDistance = 7;
     
     private enum State
@@ -62,6 +68,11 @@ public class ShootAction : BaseAction
 
     private void Shoot()
     {
+        OnShoot?.Invoke(this, new OnShootEventArgs
+        {
+            targetUnit = _targetUnit,
+            shootingUnit = _unit
+        });
         _targetUnit.Damage();
     }
 
@@ -101,7 +112,6 @@ public class ShootAction : BaseAction
         _state = State.Aiming;
         var stateTimer = 1f;
         _stateTimer = stateTimer;
-        OnShoot?.Invoke(this, EventArgs.Empty);
     }
 
     public override List<GridPosition> GetValidActionGridPositionList()
