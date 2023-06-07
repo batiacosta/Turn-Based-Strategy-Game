@@ -18,15 +18,14 @@ public class MoveAction : BaseAction
         _targetPosition = transform.position;
     }
 
-    public override string GetActinName()
+    public override string GetActionName()
     {
         return "Move";
     }
 
     public override void TakeAction(GridPosition gridPosition, Action onActionComplete)
     {
-        _OnActionComplete = onActionComplete;
-        _isActive = true;
+        ActionStart(onActionComplete);
         _targetPosition = LevelGrid.Instance.GetWorldPosition(gridPosition);
     }
 
@@ -55,8 +54,7 @@ public class MoveAction : BaseAction
         else
         {
             unitAnimator.SetBool(IsWalking, false);
-            _isActive = false;
-            _OnActionComplete();
+            ActionComplete();
         }
 
         float rotateSpeed = 10f;
