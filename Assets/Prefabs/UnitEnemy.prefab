@@ -78,6 +78,21 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5356686684022185147, guid: 71b9b1422a6f94fd6b3a15df5f5d4571,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5356686684022185147, guid: 71b9b1422a6f94fd6b3a15df5f5d4571,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0.89079213
+      objectReference: {fileID: 0}
+    - target: {fileID: 5356686684022185147, guid: 71b9b1422a6f94fd6b3a15df5f5d4571,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8372900134286040316, guid: 71b9b1422a6f94fd6b3a15df5f5d4571,
         type: 3}
       propertyPath: ragdollPrefab
