@@ -43,9 +43,10 @@ public class ShootAction : BaseAction
         switch (_state)
         {
             case State.Aiming:
-                float rotationSpeed = 2f;
+                float rotationSpeed = 20f;
                 Transform currentTransform = transform;
-                transform.forward = Vector3.Lerp(currentTransform.forward, _targetUnit.transform.position, Time.deltaTime * rotationSpeed);
+                Vector3 moveDirection = (_targetUnit.transform.position - currentTransform.position).normalized;
+                transform.forward = Vector3.Lerp(currentTransform.forward, moveDirection, Time.deltaTime * rotationSpeed);
                 break;
             case State.Shooting:
                 if (_canShootBullet)
@@ -158,4 +159,5 @@ public class ShootAction : BaseAction
     }
 
     public Unit GetTargetUnit() => _targetUnit;
+    public int GetMaxShootDistance() => maxShootDistance;
 }
