@@ -10,6 +10,8 @@ public class Unit : MonoBehaviour
     private const int MaxActionPointsMax = 2;
 
     public static event EventHandler OnAnyActionPointsChanged;
+    public static event EventHandler OnAnyUnitSpawned; 
+    public static event EventHandler OnAnyUnitDead; 
 
     [SerializeField] private bool isEnemy;
     
@@ -19,11 +21,13 @@ public class Unit : MonoBehaviour
     private BaseAction[] _baseActionArray;
     private HealthSystem _healthSystem;
     private int _actionPoints = MaxActionPointsMax;
-    
+    private ShootAction _shootAction;
+
     private void Awake()
     {
         _moveAction = GetComponent<MoveAction>();
         _spinAction = GetComponent<SpinAction>();
+        _shootAction = GetComponent<ShootAction>();
         _baseActionArray = GetComponents<BaseAction>();
         _healthSystem = GetComponent<HealthSystem>();
     }
@@ -34,12 +38,20 @@ public class Unit : MonoBehaviour
         _healthSystem.OnDead += HealthSystem_OnDead;
         _gridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
         LevelGrid.Instance.AddUnitAtGridPosition(_gridPosition, this);
+        OnAnyUnitSpawned?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnDestroy()
+    {
+        TurnSystem.Instance.OnTurnNumberChanged -= TurnSystem_OnTurnNumberChanged;
+        _healthSystem.OnDead -= HealthSystem_OnDead;
     }
 
     private void HealthSystem_OnDead(object sender, EventArgs e)
     {
         LevelGrid.Instance.RemoveUnitAtGridPosition(_gridPosition, this);
         Destroy(gameObject);
+        OnAnyUnitDead?.Invoke(this, EventArgs.Empty);
     }
 
     private void Update()
@@ -56,6 +68,8 @@ public class Unit : MonoBehaviour
 
     public MoveAction GetMoveAction() => _moveAction;
     public SpinAction GetSpinAction() => _spinAction;
+
+    public ShootAction GetShootAction() => _shootAction;
     public GridPosition GetGridPosition() => _gridPosition;
     public BaseAction[] GetBaseActionArray() => _baseActionArray;
 
@@ -118,4 +132,5 @@ public class Unit : MonoBehaviour
     {
         return transform.position;
     }
+    public float GetHealthNormalized() => _healthSystem.GetHealthNormalized();
 }
