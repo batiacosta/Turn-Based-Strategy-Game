@@ -10,6 +10,8 @@ public class Unit : MonoBehaviour
     private const int MaxActionPointsMax = 2;
 
     public static event EventHandler OnAnyActionPointsChanged;
+    public static event EventHandler OnAnyUnitSpawned; 
+    public static event EventHandler OnAnyUnitDead; 
 
     [SerializeField] private bool isEnemy;
     
@@ -34,12 +36,14 @@ public class Unit : MonoBehaviour
         _healthSystem.OnDead += HealthSystem_OnDead;
         _gridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
         LevelGrid.Instance.AddUnitAtGridPosition(_gridPosition, this);
+        OnAnyUnitSpawned?.Invoke(this, EventArgs.Empty);
     }
 
     private void HealthSystem_OnDead(object sender, EventArgs e)
     {
         LevelGrid.Instance.RemoveUnitAtGridPosition(_gridPosition, this);
         Destroy(gameObject);
+        OnAnyUnitDead?.Invoke(this, EventArgs.Empty);
     }
 
     private void Update()
